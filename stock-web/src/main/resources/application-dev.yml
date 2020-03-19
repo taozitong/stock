@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+
+spring:
+  profiles: dev
+
+
+
+
+#### redis 配置
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    database: 1
+    m
+
+
+#### 数据库配置
+
+
+
+
