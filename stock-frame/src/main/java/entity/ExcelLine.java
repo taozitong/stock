@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 public class ExcelLine {
     //列名
-    private List<String> colomn;
+    private List<String> column;
     //行数据
     private List<String> data;
     //行号从零开始

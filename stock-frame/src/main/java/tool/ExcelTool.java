@@ -4,10 +4,7 @@ import entity.ExcelLine;
 import lombok.extern.flogger.Flogger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
@@ -54,7 +51,7 @@ public class ExcelTool {
             ExcelLine line = null;
             if(rowNum != 0){
                 line = new ExcelLine();
-                line.setColomn(columnList);
+                line.setColumn(columnList);
                 line.setData(new ArrayList<String>());
                 line.setLineNum(rowNum);
             }
@@ -180,5 +177,102 @@ public class ExcelTool {
         
         return workbook;
     }
+    /**
+     * WriteExcel
+     * @param path  写入文件的路径
+     * @param elList 写入的数据
+     * @return: void
+     * @author:taogang
+     * @Date: 2020/5/21 17:25
+     * @Description: 按照给定的数据和地址写入excel文件
+     */
+    public static void WriteExcel(String path,List<ExcelLine> elList){
+        Workbook workbook = new HSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        List<String> column = elList.get(0).getColumn();
+        for(int rowNum = 0;rowNum<= elList.size();rowNum++){
+            Row row = sheet.createRow(rowNum);
+            //设置头
+            if(rowNum == 0){
+                writeDataToRow(column,row);
+            }else{
+                for(int i=0;i< elList.size();i++){
+                    writeDataToRow(elList.get(i).getData(),row);
+                }
+            }
+        }
+        
+        // 以文件的形式输出工作簿对象
+        FileOutputStream fileOut = null;
+        try {
+            File exportFile = new File(path);
+            if (!exportFile.exists()) {
+                exportFile.createNewFile();
+            }
+        
+            fileOut = new FileOutputStream(path);
+            workbook.write(fileOut);
+            fileOut.flush();
+        } catch (Exception e) {
+            log.error("输出Excel时发生错误，错误原因：" + e.getMessage());
+        } finally {
+            try {
+                if (null != fileOut) {
+                    fileOut.close();
+                }
+                if (null != workbook) {
+                    workbook.close();
+                }
+            } catch (IOException e) {
+                log.error("关闭输出流时发生错误，错误原因：" + e.getMessage());
+            }
+        }
     
+    }
+    /**
+     * setDefaultExcelHeardStyle
+     * @param workbook
+     * @return: org.apache.poi.ss.usermodel.CellStyle
+     * @author:taogang
+     * @Date: 2020/5/21 17:36
+     * @Description: 设置默认头的样式
+     */
+    private static CellStyle setDefaultExcelHeardStyle(Workbook workbook){
+        // 构建头单元格样式
+        CellStyle style = workbook.createCellStyle();
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBottomBorderColor(IndexedColors.BLACK.getIndex()); // 下边框
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setLeftBorderColor(IndexedColors.BLACK.getIndex()); // 左边框
+        style.setBorderRight(BorderStyle.THIN);
+        style.setRightBorderColor(IndexedColors.BLACK.getIndex()); // 右边框
+        style.setBorderTop(BorderStyle.THIN);
+        style.setTopBorderColor(IndexedColors.BLACK.getIndex()); // 上边框
+        //设置背景颜色
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        //粗体字设置
+        Font font = workbook.createFont();
+        font.setBold(true);
+        style.setFont(font);
+        return style;
+    }
+    
+    /**
+     * convertDataToRow
+     * @param data
+     * @param row
+     * @return: void
+     * @author:taogang
+     * @Date: 2020/5/21 17:42
+     * @Description: 写入内容到excel里面
+     */
+    private static void writeDataToRow(List<String> data, Row row){
+        Cell cell;
+        for(int cluNum = 0;cluNum < data.size();cluNum++){
+            cell = row.createCell(cluNum + 1);
+            cell.setCellValue(data.get(cluNum));
+        }
+    }
+
 }
